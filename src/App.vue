@@ -1,34 +1,44 @@
 <template>
-  <div class="words-container">
-    <Word :char-input="charInput" />
+  <div class="game">
+    <BarEnemy :char-input="charInput" />
+    <BarEnemy :char-input="charInput" />
+    <BarEnemy :char-input="charInput" />
   </div>
-
-  <input
-    ref="inputRef"
-    @keydown="handleKey"
-  />
-
-  <p>Last typed character: {{ charInput.char }}</p>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import Word from './components/Word.vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import BarEnemy from './components/BarEnemy.vue';
 
-const charInput = ref<{ char: string; id: number}>({ char: '', id: 0 });
+const charInput = ref<{ char: string; id: number }>({ char: '', id: 0 });
 
 const handleKey = (event: KeyboardEvent): void => {
   if (event.key.length === 1) {
-    charInput.value = { char: event.key, id: charInput.value.id + 1 };
+    const ch = event.key.toLowerCase();
+    if (/^[a-z]$/.test(ch)) {
+      charInput.value = { char: ch, id: charInput.value.id + 1 };
+    }
   }
 
-  event.preventDefault()
-}
+  event.preventDefault();
+};
+
+// listen on window so user can type "in the air"
+onMounted(() => {
+  window.addEventListener('keydown', handleKey);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKey);
+});
 </script>
 
 <style scoped>
-.words-container {
+.game {
+  height: 100vh;
   display: flex;
-  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
 }
 </style>
